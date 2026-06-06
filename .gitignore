@@ -1,0 +1,148 @@
+# ============================================================
+# .gitignore for EcommerceApi — ASP.NET Core (.NET 8) Web API
+# EF Core + PostgreSQL + Swagger
+# ============================================================
+
+# --------------------------
+# .NET Build Outputs
+# --------------------------
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.d.ts
+
+# --------------------------
+# .NET User-Specific Files
+# --------------------------
+*.rsuser
+*.user
+*.userosscache
+*.sln.docstates
+
+# --------------------------
+# Visual Studio
+# --------------------------
+.vs/
+*.suo
+*.ncrunchproject
+*.ncrunchsolution
+*.saps
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# --------------------------
+# Visual Studio Code
+# --------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# --------------------------
+# NuGet
+# --------------------------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# --------------------------
+# Rider / JetBrains
+# --------------------------
+.idea/
+*.sln.iml
+
+# --------------------------
+# Entity Framework Core Migrations (optional — remove if you want to track migrations)
+# Uncomment the lines below if you do NOT want to commit migrations:
+# Migrations/
+# --------------------------
+
+# --------------------------
+# Sensitive Configuration
+# --------------------------
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+secrets.json
+*.pfx
+*.p12
+*.key
+*.cer
+*.crt
+
+# --------------------------
+# Docker
+# --------------------------
+.dockerignore
+
+# --------------------------
+# Test Results
+# --------------------------
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResult.xml
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+coverage*/
+*.opencover.xml
+
+# --------------------------
+# Publishing / Deployment
+# --------------------------
+[Pp]ublish/
+PublishProfiles/
+*.pubxml
+*.pubxml.user
+
+# --------------------------
+# OS & System Files
+# --------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --------------------------
+# Temporary Files
+# --------------------------
+*.swp
+*.swo
+*~
