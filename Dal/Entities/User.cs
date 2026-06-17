@@ -8,12 +8,18 @@ namespace EcommerceApi.Dal.Entities;
 
 [Table("users")]
 [Index("Email", Name = "users_email_key", IsUnique = true)]
-[Index("Username", Name = "users_username_key", IsUnique = true)]
 public partial class User
 {
     [Key]
-    [Column("id")]
-    public int Id { get; set; }
+    [Column("user_id")]
+    public int UserId { get; set; }
+
+    [Column("email")]
+    [StringLength(200)]
+    public string Email { get; set; } = null!;
+
+    [Column("password_hash")]
+    public string PasswordHash { get; set; } = null!;
 
     [Column("first_name")]
     [StringLength(100)]
@@ -21,29 +27,28 @@ public partial class User
 
     [Column("last_name")]
     [StringLength(100)]
-    public string? LastName { get; set; }
+    public string LastName { get; set; } = null!;
 
-    [Column("email")]
-    [StringLength(255)]
-    public string Email { get; set; } = null!;
-
-    [Column("username")]
-    [StringLength(100)]
-    public string Username { get; set; } = null!;
-
-    [Column("password_hash")]
-    public string PasswordHash { get; set; } = null!;
+    [Column("phone_number")]
+    [StringLength(20)]
+    public string? PhoneNumber { get; set; }
 
     [Column("role")]
-    [StringLength(50)]
-    public string? Role { get; set; }
+    [StringLength(20)]
+    public string Role { get; set; } = null!;
 
     [Column("is_active")]
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    [Column("updated_at", TypeName = "timestamp without time zone")]
-    public DateTime? UpdatedAt { get; set; }
+    [InverseProperty("User")]
+    public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

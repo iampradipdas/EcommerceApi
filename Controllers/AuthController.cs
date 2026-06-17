@@ -1,8 +1,9 @@
-﻿using EcommerceApi.Dal;
-using EcommerceApi.Dal.Entities;
-using EcommerceApi.DTO;
+﻿using EcommerceApi.DTOs;
+using EcommerceApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace EcommerceApi.Controllers
 {
@@ -10,70 +11,66 @@ namespace EcommerceApi.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly EcomDbContext _context;
-        public AuthController(EcomDbContext context)
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
-            _context = context;
+            _authService = authService;
         }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
-        {
-            if (request.Email == null || request.Password == null)
-            {
-                return BadRequest("Email and password are required.");
-            }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (user == null)
-            {
-                return Unauthorized("Invalid email or password.");
-            }
-
-            // Here you would typically verify the password
-            // For example: if (!VerifyPassword(request.Password, user.PasswordHash)) { return Unauthorized("Invalid email or password."); }
-
-            return Ok(new { Message = "Login successful", UserId = user.Id });
-        }
-
+        // POST api/auth/register
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            if (request.Email == null || request.Password == null || request.ConfirmPassword == null)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
             {
-                return BadRequest("Email, password and confirm password are required.");
+                var result = await _authService.RegisterAsync(dto);
+                return Ok(result);
             }
-
-            if (request.Password != request.ConfirmPassword)
+            catch (InvalidOperationException ex)
             {
-                return BadRequest("Passwords do not match.");
+                return Conflict(new { message = ex.Message });    // 409 — email already exists
             }
-
-            var existingUser = await _context.Users.AnyAsync(u => u.Email == request.Email);
-            if (existingUser)
-            {
-                return BadRequest("Email is already in use.");
-            }
-
-            var user = new User
-            {
-                FirstName = request.firstName,
-                LastName = request.lastName,
-                Email = request.Email,
-                Username = request.Username,
-                PasswordHash = HashPassword(request.Password) // You would hash the password here
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Registration successful", UserId = user.Id });
         }
 
-        private string HashPassword(string password)
+        // POST api/auth/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            // Implement your password hashing logic here
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _authService.LoginAsync(dto);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message }); // 401
+            }
+        }
+
+        // GET api/auth/me  — protected: only logged-in users
+        [HttpGet("me")]
+        [Authorize]
+        public IActionResult Me()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var role = User.FindFirstValue(ClaimTypes.Role);
+
+            return Ok(new { userId, email, role });
+        }
+
+        // GET api/auth/admin-only — protected: only Admin role
+        [HttpGet("admin-only")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult AdminOnly()
+        {
+            return Ok(new { message = "Welcome, Admin!" });
         }
     }
 }
