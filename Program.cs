@@ -81,6 +81,7 @@ builder.Services.AddAuthentication(options =>
 // --- DI Registration ---
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService,  JwtService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
