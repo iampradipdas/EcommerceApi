@@ -1,10 +1,11 @@
-using System.Text;
 using EcommerceApi.Dal;
 using EcommerceApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,12 +79,31 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// --- Allow large file uploads (default limit is 28 MB, set to 10 MB) ---
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;  // 10 MB
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
+});
+
 // --- DI Registration ---
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService,  JwtService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 var app = builder.Build();
+
+// --- Serve static files from wwwroot (so /uploads/... URLs work) ---
+app.UseStaticFiles();
+
+var uploadsPath = Path.Combine(builder.Environment.WebRootPath ?? "wwwroot",
+                               "uploads", "products");
+if (!Directory.Exists(uploadsPath))
+    Directory.CreateDirectory(uploadsPath);
 
 app.UseCors("Angular");
 
