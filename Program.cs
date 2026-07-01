@@ -94,8 +94,16 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService,  JwtService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 var app = builder.Build();
+
+// --- Seed Database ---
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<EcomDbContext>();
+    DbSeeder.Seed(context);
+}
 
 // --- Serve static files from wwwroot (so /uploads/... URLs work) ---
 app.UseStaticFiles();
