@@ -100,6 +100,9 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
+// Register global exception handler middleware first to catch all pipeline errors
+app.UseMiddleware<EcommerceApi.Middlewares.GlobalExceptionMiddleware>();
+
 // --- Seed Database ---
 using (var scope = app.Services.CreateScope())
 {
