@@ -1,4 +1,4 @@
-﻿using EcommerceApi.Dal;
+using EcommerceApi.Dal;
 using EcommerceApi.Dal.Entities;
 using EcommerceApi.DTOs.Common;
 using EcommerceApi.DTOs.Products;
@@ -182,6 +182,7 @@ namespace EcommerceApi.Services
             ImageUrl = p.ImageUrl,
             IsActive = p.IsActive,
             CreatedAt = p.CreatedAt,
+            CategoryId = p.CategoryId,
             CategoryName = p.Category?.Name ?? ""
         };
 

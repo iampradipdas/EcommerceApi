@@ -14,12 +14,12 @@ namespace EcommerceApi.Dal
             // but we assume it already exists based on Flyway structure)
             context.Database.EnsureCreated();
 
-            // 1. Seed Users if empty
-            if (!context.Users.Any())
+            // 1. Seed Users if they don't exist by email
+            bool hasChanges = false;
+            
+            if (!context.Users.Any(u => u.Email == "admin@ecommerce.com"))
             {
                 var adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("Password@123");
-                var customerPasswordHash = BCrypt.Net.BCrypt.HashPassword("Password@123");
-
                 var admin = new User
                 {
                     Email = "admin@ecommerce.com",
@@ -31,7 +31,13 @@ namespace EcommerceApi.Dal
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
+                context.Users.Add(admin);
+                hasChanges = true;
+            }
 
+            if (!context.Users.Any(u => u.Email == "customer@ecommerce.com"))
+            {
+                var customerPasswordHash = BCrypt.Net.BCrypt.HashPassword("Password@123");
                 var customer = new User
                 {
                     Email = "customer@ecommerce.com",
@@ -43,8 +49,12 @@ namespace EcommerceApi.Dal
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
+                context.Users.Add(customer);
+                hasChanges = true;
+            }
 
-                context.Users.AddRange(admin, customer);
+            if (hasChanges)
+            {
                 context.SaveChanges();
             }
 

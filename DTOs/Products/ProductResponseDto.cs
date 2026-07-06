@@ -1,4 +1,4 @@
-﻿namespace EcommerceApi.DTOs.Products
+namespace EcommerceApi.DTOs.Products
 {
     public class ProductResponseDto
 {
@@ -12,6 +12,7 @@
     public string? ImageUrl      { get; set; }
     public bool    IsActive      { get; set; }
     public DateTime CreatedAt   { get; set; }
+    public int     CategoryId    { get; set; }
     public string  CategoryName  { get; set; } = null!;  // joined from Category table
     public decimal FinalPrice    => DiscountPrice ?? Price;
     public bool    IsOnSale      => DiscountPrice.HasValue && DiscountPrice < Price;
