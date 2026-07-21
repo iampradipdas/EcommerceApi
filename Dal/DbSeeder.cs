@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using EcommerceApi.Dal.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EcommerceApi.Dal
 {
@@ -27,7 +29,11 @@ namespace EcommerceApi.Dal
                 try
                 {
                     context.Database.ExecuteSqlRaw("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
-                    context.Database.EnsureCreated();
+                    
+                    // Directly force EF Core to create the tables in the clean public schema
+                    var databaseCreator = context.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
+                    databaseCreator?.CreateTables();
+                    
                     Console.WriteLine("Database schema initialized successfully.");
                 }
                 catch (Exception ex)
