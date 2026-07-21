@@ -10,9 +10,32 @@ namespace EcommerceApi.Dal
     {
         public static void Seed(EcomDbContext context)
         {
-            // Ensure database is created (or apply migrations if EF Core is handling it, 
-            // but we assume it already exists based on Flyway structure)
-            context.Database.EnsureCreated();
+            try
+            {
+                context.Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during EnsureCreated: {ex.Message}");
+            }
+
+            // If the core table "users" is missing, the DB schema is incomplete or corrupted (e.g. EnsureCreated skipped because of a flyway table).
+            // Wipe the schema and recreate it cleanly.
+            if (!TableExists(context, "users"))
+            {
+                Console.WriteLine("Core table 'users' does not exist. Re-initializing database schema...");
+                try
+                {
+                    context.Database.ExecuteSqlRaw("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+                    context.Database.EnsureCreated();
+                    Console.WriteLine("Database schema initialized successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to re-initialize database schema: {ex.Message}");
+                    throw;
+                }
+            }
 
             // 1. Seed Users if they don't exist by email
             bool hasChanges = false;
@@ -281,6 +304,32 @@ namespace EcommerceApi.Dal
                     context.Reviews.AddRange(reviews);
                     context.SaveChanges();
                 }
+            }
+        }
+
+        private static bool TableExists(EcomDbContext context, string tableName)
+        {
+            try
+            {
+                using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = @tableName);";
+                
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@tableName";
+                parameter.Value = tableName;
+                command.Parameters.Add(parameter);
+
+                context.Database.OpenConnection();
+                var exists = (bool)command.ExecuteScalar()!;
+                return exists;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                context.Database.CloseConnection();
             }
         }
     }
