@@ -56,9 +56,26 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Angular",
       policy =>
         {
-            policy.WithOrigins("https://ecommerce-ui.pradipdas0320.workers.dev/")
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                                 ?? builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                                 ?? new[] { "https://ecommerce-ui.pradipdas0320.workers.dev", "http://localhost:4200" };
+
+            var normalizedOrigins = allowedOrigins
+                .Select(o => o.TrimEnd('/'))
+                .ToArray();
+
+            if (normalizedOrigins.Any(o => o == "*"))
+            {
+                policy.AllowAnyOrigin()
                       .AllowAnyHeader()
                       .AllowAnyMethod();
+            }
+            else
+            {
+                policy.WithOrigins(normalizedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            }
         });
 });
 
