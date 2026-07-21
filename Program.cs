@@ -50,9 +50,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Angular",
       policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            policy.WithOrigins("https://ecommerce-ui.pradipdas0320.workers.dev/")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
         });
 });
 
@@ -127,7 +127,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();    // reads the JWT token
 
