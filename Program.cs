@@ -1,4 +1,6 @@
 using EcommerceApi.Dal;
+using EcommerceApi.RabbitMQ;
+using EcommerceApi.RabbitMQ.Interface;
 using EcommerceApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
@@ -15,10 +17,10 @@ builder.Services.AddControllers();
 
 // postgre sql connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (connectionString != null && (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
-{
-    connectionString = ConvertPostgresUriToConnectionString(connectionString);
-}
+// if (connectionString != null && (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
+// {
+//     connectionString = ConvertPostgresUriToConnectionString(connectionString);
+// }
 
 builder.Services.AddDbContext<EcomDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -58,7 +60,7 @@ builder.Services.AddCors(options =>
         {
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                                  ?? builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
-                                 ?? new[] { "https://ecommerce-ui.pradipdas0320.workers.dev", "http://localhost:4200" };
+                                 ?? new[] { "http://localhost:4200", "http://localhost:4200" };
 
             var normalizedOrigins = allowedOrigins
                 .Select(o => o.TrimEnd('/'))
@@ -120,6 +122,10 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+builder.Services.AddScoped<IRabbitMqService, RabbitMqService>();
+builder.Services.AddTransient<IMessageQueueRepository, MessageQueueRepository>();
+builder.Services.AddTransient<IMQueueProcessingService, MQueueProcessingService>();
 
 var app = builder.Build();
 

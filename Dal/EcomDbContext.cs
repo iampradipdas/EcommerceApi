@@ -7,6 +7,10 @@ namespace EcommerceApi.Dal;
 
 public partial class EcomDbContext : DbContext
 {
+    public EcomDbContext()
+    {
+    }
+
     public EcomDbContext(DbContextOptions<EcomDbContext> options)
         : base(options)
     {
@@ -16,6 +20,8 @@ public partial class EcomDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<ConsumeLog> ConsumeLogs { get; set; }
+
     public virtual DbSet<FlywaySchemaHistory> FlywaySchemaHistories { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
@@ -23,6 +29,8 @@ public partial class EcomDbContext : DbContext
     public virtual DbSet<OrderItem> OrderItems { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<PublishLog> PublishLogs { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
 
@@ -53,6 +61,14 @@ public partial class EcomDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.ParentCategory).WithMany(p => p.InverseParentCategory).HasConstraintName("categories_parent_category_id_fkey");
+        });
+
+        modelBuilder.Entity<ConsumeLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("consume_logs_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<FlywaySchemaHistory>(entity =>
@@ -102,6 +118,14 @@ public partial class EcomDbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("products_category_id_fkey");
+        });
+
+        modelBuilder.Entity<PublishLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("publish_logs_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Review>(entity =>
